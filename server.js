@@ -1,25 +1,18 @@
-require('dotenv').config(); // 👈 โหลดตัวแปรจาก .env
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const airRoutes = require('./routes/airRoute');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
 
-app.use(cors());
-app.use(express.json());
-app.use('/api/air', airRoutes);
+console.log("🔍 MONGO_URI:", process.env.MONGO_URI); // ลองเช็กค่าตรงนี้ก่อน
 
-// เชื่อมต่อ MongoDB
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error('❌ MongoDB connection error:', err.message);
-  });
+mongoose.connect(process.env.MONGO_URI, {
+  dbName: 'airqualitydb',
+})
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection error:", err));
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
+});
