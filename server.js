@@ -1,38 +1,25 @@
-require('dotenv').config();
+require('dotenv').config(); // 👈 โหลดตัวแปรจาก .env
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const WebSocket = require('ws');
+const airRoutes = require('./routes/airRoute');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/api/air', airRoutes);
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('✅ MongoDB connected');
-}).catch(err => {
-  console.error('❌ MongoDB error:', err);
-});
-
-// API Route
-app.use('/api/air', require('./routes/airRoute'));
-
-// Start HTTP Server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
-
-// WebSocket
-const wss = new WebSocket.Server({ server });
-
-wss.on('connection', (ws) => {
-  console.log('📡 WebSocket connected');
-  ws.send(JSON.stringify({ message: 'Welcome to Air Quality WebSocket!' }));
-});
+// เชื่อมต่อ MongoDB
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err.message);
+  });
